@@ -1,0 +1,7 @@
+LIBTEST
+{
+global:
+    *pyHealpix*;
+local:
+    *;
+};
