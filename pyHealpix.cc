@@ -493,7 +493,8 @@ a_d_c local_alm2map(const a_c_c &alm, int64_t lmax, int64_t mmax, int64_t nside)
   alm2map(Alm,map);
   return res;
   }
-a_c_c local_map2alm(const a_d_c &map, int64_t lmax, int64_t mmax)
+a_c_c local_map2alm_iter(const a_d_c &map, int64_t lmax, int64_t mmax,
+  int64_t niter)
   {
   auto mr=map.unchecked<1>();
   arr<double> rmap(const_cast<double *>(&mr[0]),mr.size());
@@ -507,9 +508,11 @@ a_c_c local_map2alm(const a_d_c &map, int64_t lmax, int64_t mmax)
   Alm<xcomplex<double>> Alm;
   Alm.Set(ralm,lmax,mmax);
   arr<double> wgt(2*Map.Nside(),1.);
-  map2alm(Map,Alm,wgt);
+  map2alm_iter(Map,Alm,niter,wgt);
   return res;
   }
+a_c_c local_map2alm(const a_d_c &map, int64_t lmax, int64_t mmax)
+  { return local_map2alm_iter(map,lmax,mmax,0); }
 
 const char *pyHealpix_DS = R"DELIM(
 Python interface for some of the HEALPix C++ functionality
@@ -663,6 +666,7 @@ PYBIND11_PLUGIN(pyHealpix)
 
   m.def("alm2map",&local_alm2map);
   m.def("map2alm",&local_map2alm);
+  m.def("map2alm_iter",&local_map2alm_iter);
   m.def("ang2vec",&ang2vec, ang2vec_DS, "ang"_a);
   m.def("vec2ang",&vec2ang, vec2ang_DS, "vec"_a);
   m.def("v_angle",&local_v_angle, v_angle_DS, "v1"_a, "v2"_a);
