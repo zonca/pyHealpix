@@ -430,6 +430,16 @@ template<typename T> class py_sharpjob
       job.alm2map(&ar[0],&mr[0],false);
       return map;
       }
+    a_c_c alm2map_adjoint (const a_d_c &map) const
+      {
+      planck_assert(npix_>0,"no map geometry specified");
+      planck_assert (map.size()==size_t(npix_),"incorrect size of map array");
+      a_c_c alm(n_alm());
+      auto mr=map.unchecked<1>();
+      auto ar=alm.mutable_unchecked<1>();
+      job.alm2map_adjoint(&mr[0],&ar[0],false);
+      return alm;
+      }
     a_c_c map2alm (const a_d_c &map) const
       {
       planck_assert(npix_>0,"no map geometry specified");
@@ -491,6 +501,22 @@ a_d_c local_alm2map(const a_c_c &alm, int64_t lmax, int64_t mmax, int64_t nside)
   Healpix_Map<double> map;
   map.Set(rmap,RING);
   alm2map(Alm,map);
+  return res;
+  }
+a_c_c local_alm2map_adjoint(const a_d_c &map, int64_t lmax, int64_t mmax)
+  {
+  auto mr=map.unchecked<1>();
+  arr<double> rmap(const_cast<double *>(&mr[0]),mr.size());
+  Healpix_Map<double> Map;
+  Map.Set(rmap,RING);
+  size_t nalm=Alm<xcomplex<double>>::Num_Alms(lmax,mmax);
+  a_c_c res(nalm);
+  auto rr=res.mutable_unchecked<1>();
+  arr<xcomplex<double> >ralm
+    (reinterpret_cast<xcomplex<double> *>(&rr[0]),nalm);
+  Alm<xcomplex<double>> Alm;
+  Alm.Set(ralm,lmax,mmax);
+  alm2map_adjoint(Map,Alm);
   return res;
   }
 a_c_c local_map2alm_iter(const a_d_c &map, int64_t lmax, int64_t mmax,
@@ -658,6 +684,7 @@ PYBIND11_PLUGIN(pyHealpix)
       &py_sharpjob<double>::set_triangular_alm_info, "lmax"_a, "mmax"_a)
     .def("n_alm", &py_sharpjob<double>::n_alm)
     .def("alm2map", &py_sharpjob<double>::alm2map,"alm"_a)
+    .def("alm2map_adjoint", &py_sharpjob<double>::alm2map_adjoint,"map"_a)
     .def("map2alm", &py_sharpjob<double>::map2alm,"map"_a)
     .def("alm2map_spin", &py_sharpjob<double>::alm2map_spin,"alm"_a,"spin"_a)
     .def("map2alm_spin", &py_sharpjob<double>::map2alm_spin,"map"_a,"spin"_a)
@@ -665,6 +692,7 @@ PYBIND11_PLUGIN(pyHealpix)
     ;
 
   m.def("alm2map",&local_alm2map);
+  m.def("alm2map_adjoint",&local_alm2map_adjoint);
   m.def("map2alm",&local_map2alm);
   m.def("map2alm_iter",&local_map2alm_iter);
   m.def("ang2vec",&ang2vec, ang2vec_DS, "ang"_a);
