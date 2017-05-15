@@ -485,6 +485,15 @@ a_d_c GL_weights(int64_t nlat, int64_t nlon)
   return res;
   }
 
+a_d_c GL_thetas(int64_t nlat)
+  {
+  a_d_c res(nlat);
+  auto rr=res.mutable_unchecked<1>();
+  vector<double> dummy_weights(nlat);
+  sharp_legendre_roots(nlat, &rr[0], dummy_weights.data());
+  return res;
+  }
+
 a_d_c local_alm2map(const a_c_c &alm, int64_t lmax, int64_t mmax, int64_t nside)
   {
   auto ar=alm.unchecked<1>();
@@ -699,5 +708,6 @@ PYBIND11_PLUGIN(pyHealpix)
   m.def("vec2ang",&vec2ang, vec2ang_DS, "vec"_a);
   m.def("v_angle",&local_v_angle, v_angle_DS, "v1"_a, "v2"_a);
   m.def("GL_weights",&GL_weights, "nlat"_a, "nlon"_a);
+  m.def("GL_thetas",&GL_thetas, "nlat"_a);
   return m.ptr();
   }
