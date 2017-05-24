@@ -31,33 +31,31 @@ Installation
 
 -   Install dependencies for building:
 
-        sudo apt-get install g++ autoconf git
+        sudo apt-get install g++ autoconf libtool git
 
 -   Install pyHealpix:
 
         git clone https://gitlab.mpcdf.mpg.de/ift/pyHealpix.git
-        cd pyHealpix
-        autoreconf -i && ./configure && make -j4 && sudo make install
-        cd ..
+        (cd pyHealpix && autoreconf -i && ./configure --enable-openmp --enable-native-optimizations && make -j4 && sudo make install)
 
 ### Local installation for a single user
 
 -   Install dependencies for building:
 
-        sudo apt-get install g++ autoconf git
+        sudo apt-get install g++ autoconf libtool git
 
 -   Install pyHealpix:
 
         git clone https://gitlab.mpcdf.mpg.de/ift/pyHealpix.git
-        cd pyHealpix
-        autoreconf -i && ./configure --prefix=$HOME/.local && make -j4 && make install
-        cd ..
+        (cd pyHealpix && autoreconf -i && ./configure --prefix=$HOME/.local --enable-openmp --enable-native-optimizations && make -j4 install)
 
 ### Installation on OS X
 
 -   Install pyHealpix:
 
         git clone https://gitlab.mpcdf.mpg.de/ift/pyHealpix.git
-        cd pyHealpix
-        autoreconf -i && ./configure --prefix=`python-config --prefix` && make -j4 && sudo make install
-        cd ..
+        (cd pyHealpix && autoreconf -i && ./configure --prefix=`python-config --prefix` --enable-openmp --enable-native-optimizations && make -j4 && sudo make install)
+
+    (The last command installs the package system-wide. User-specific
+    installation would be preferrable, but we haven't found a simple recipe yet
+    how to determine the installation prefix ...)
