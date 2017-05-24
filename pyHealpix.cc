@@ -491,6 +491,8 @@ a_d_c GL_thetas(int64_t nlat)
   auto rr=res.mutable_unchecked<1>();
   vector<double> dummy_weights(nlat);
   sharp_legendre_roots(nlat, &rr[0], dummy_weights.data());
+  for (size_t i=0; i<rr.shape(0); ++i)
+    rr[i]=acos(-rr[i]);
   return res;
   }
 
