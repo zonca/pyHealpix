@@ -1,7 +1,0 @@
-LIBTEST
-{
-global:
-    *pyHealpix*;
-local:
-    *;
-};
