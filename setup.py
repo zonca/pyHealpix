@@ -71,7 +71,7 @@ def _remove_strict_prototype_option_from_distutils_config():
 
 _remove_strict_prototype_option_from_distutils_config()
 
-extra_compile_args = ['-fopenmp', '-march=native']
+extra_compile_args = []
 extra_cc_compile_args = []
 include_dirs = ['c_utils/', 'libfftpack/', 'libsharp/', 'cxxsupport',
                 'Healpix_cxx', _deferred_pybind11_include(),
@@ -95,6 +95,8 @@ if sys.platform == 'darwin':
                    '-Wl,-dylib_install_name,@loader_path/{}'.format(full_name))
     base_library_link_args.append('-dynamiclib')
 else:
+    extra_compile_args+=['-fopenmp', '-march=native']
+    python_module_link_args+=['-fopenmp', '-march=native']
     extra_cc_compile_args.append('--std=c++14')
     python_module_link_args.append("-Wl,-rpath,$ORIGIN")
 
@@ -128,7 +130,7 @@ def get_extension_modules():
                                   sources=pyhealpix_sources,
                                   include_dirs=include_dirs,
                                   extra_compile_args=extra_cc_compile_args,
-                                  libraries=['gomp']+sharp_libs,
+                                  libraries=sharp_libs,
                                   extra_link_args=python_module_link_args,
                                   library_dirs=library_dirs)
     extension_modules.append(pyhealpix_library)
