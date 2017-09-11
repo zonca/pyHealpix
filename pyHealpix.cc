@@ -456,7 +456,7 @@ template<typename T> class py_sharpjob
       auto ar=alm.unchecked<2>();
       planck_assert((ar.shape(0)==2)&&(ar.shape(1)==size_t(n_alm())),
         "incorrect size of a_lm array");
-      a_d_c map({2,size_t(npix_)});
+      a_d_c map(vector<size_t>{2,size_t(npix_)});
       auto mr=map.mutable_unchecked<2>();
       job.alm2map_spin(&ar(0,0),&ar(1,0),&mr(0,0),&mr(1,0),spin,false);
       return map;
@@ -467,7 +467,7 @@ template<typename T> class py_sharpjob
       auto mr=map.unchecked<2>();
       planck_assert ((mr.shape(0)==2)&&(mr.shape(1)==size_t(npix_)),
         "incorrect size of map array");
-      a_c_c alm({2,size_t(n_alm())});
+      a_c_c alm(vector<size_t>{2,size_t(n_alm())});
       auto ar=alm.mutable_unchecked<2>();
       job.map2alm_spin(&mr(0,0),&mr(1,0),&ar(0,0),&ar(1,0),spin,false);
       return alm;
@@ -653,10 +653,11 @@ The employed algorithm is highly accurate, even for angles close to 0 or pi.
 
 } // unnamed namespace
 
-PYBIND11_PLUGIN(pyHealpix)
+PYBIND11_MODULE(pyHealpix, m)
   {
   using namespace pybind11::literals;
-  py::module m("pyHealpix", pyHealpix_DS);
+
+  m.doc() = pyHealpix_DS;
 
   py::class_<Pyhpbase> (m, "Healpix_Base")
     .def(py::init<int,const string &>(),"nside"_a,"scheme"_a)
@@ -711,5 +712,4 @@ PYBIND11_PLUGIN(pyHealpix)
   m.def("v_angle",&local_v_angle, v_angle_DS, "v1"_a, "v2"_a);
   m.def("GL_weights",&GL_weights, "nlat"_a, "nlon"_a);
   m.def("GL_thetas",&GL_thetas, "nlat"_a);
-  return m.ptr();
   }

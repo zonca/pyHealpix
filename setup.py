@@ -29,6 +29,13 @@ def _get_distutils_build_directory():
                                                 major=sys.version_info[0],
                                                 minor=sys.version_info[1]))
 
+class _deferred_pybind11_include(object):
+    def __init__(self, user=False):
+        self.user = user
+
+    def __str__(self):
+        import pybind11
+        return pybind11.get_include(self.user)
 
 def _strip_inc(input):
     res = []
@@ -67,7 +74,8 @@ _remove_strict_prototype_option_from_distutils_config()
 extra_compile_args = ['-fopenmp', '-march=native']
 extra_cc_compile_args = []
 include_dirs = ['c_utils/', 'libfftpack/', 'libsharp/', 'cxxsupport',
-                'Healpix_cxx', './']
+                'Healpix_cxx', _deferred_pybind11_include(),
+                _deferred_pybind11_include(True)]
 
 library_dirs = [_get_distutils_build_directory()]
 python_module_link_args = []
@@ -135,7 +143,7 @@ setup(name='pyHealpix',
       author='Martin Reinecke',
       author_email='martin@mpa-garching.mpg.de',
       packages=[],
-      extras_require={'numpy': 'numpy>=1.10.4'},
+      extras_require={'numpy': 'numpy>=1.10.4', 'pybind11': 'pybind11>=2.2.0'},
       ext_modules=get_extension_modules(),
-      install_requires=[]
+      install_requires=['pybind11>=2.2.0']
       )
