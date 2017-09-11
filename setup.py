@@ -64,7 +64,10 @@ def _remove_strict_prototype_option_from_distutils_config():
 
 _remove_strict_prototype_option_from_distutils_config()
 
-extra_compile_args = ['-fopenmp', '-march=native']
+#extra_compile_args = ['-fopenmp', '-march=native']
+#openmp_libs=['gomp']
+extra_compile_args=[]
+openmp_libs=[]
 extra_cc_compile_args = []
 include_dirs = ['c_utils/', 'libfftpack/', 'libsharp/', 'cxxsupport',
                 'Healpix_cxx', './']
@@ -120,7 +123,7 @@ def get_extension_modules():
                                   sources=pyhealpix_sources,
                                   include_dirs=include_dirs,
                                   extra_compile_args=extra_cc_compile_args,
-                                  libraries=['gomp']+sharp_libs,
+                                  libraries=openmp_libs+sharp_libs,
                                   extra_link_args=python_module_link_args,
                                   library_dirs=library_dirs)
     extension_modules.append(pyhealpix_library)
