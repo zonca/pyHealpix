@@ -65,7 +65,7 @@ class Itnew
       pos(max<int>(2,in.ndim()),0), stride(max<int>(2,in.ndim())), done_(false),
       ptr(reinterpret_cast<const char *>(in.data()))
       {
-      for (size_t i=0; i<in.ndim(); ++i)
+      for (size_t i=0; i<size_t(in.ndim()); ++i)
         {
         shape[i]=in.shape(in.ndim()-1-i);
         stride[i]=(shape[i]==1) ? 0 : in.strides(in.ndim()-1-i);
@@ -131,37 +131,39 @@ using a_c_c = py::array_t<complex<double>,
 void assert_equal_shape(const py::array &a, const py::array &b)
   {
   planck_assert(a.ndim()==b.ndim(),"array dimensions mismatch");
-  for (size_t i=0; i<a.ndim(); ++i)
+  for (size_t i=0; i<size_t(a.ndim()); ++i)
     planck_assert(a.shape(i)==b.shape(i), "array hape mismatch");
   }
 vector<size_t> add_dim(const py::array &a, size_t dim)
   {
   vector<size_t> res(a.ndim()+1);
-  for (size_t i=0; i<a.ndim(); ++i) res[i]=a.shape(i);
+  for (size_t i=0; i<size_t(a.ndim()); ++i) res[i]=a.shape(i);
   res.back()=dim;
   return res;
   }
 vector<size_t> subst_dim(const py::array &a, size_t d1, size_t d2)
   {
   planck_assert(a.ndim()>0,"too few array dimensions");
-  planck_assert(a.shape(a.ndim()-1)==d1,"incorrect last array dimension");
+  planck_assert(size_t(a.shape(a.ndim()-1))==d1,
+    "incorrect last array dimension");
   vector<size_t> res(a.ndim());
-  for (size_t i=0; i<a.ndim()-1; ++i) res[i]=a.shape(i);
+  for (size_t i=0; i<size_t(a.ndim()-1); ++i) res[i]=a.shape(i);
   res.back()=d2;
   return res;
   }
 vector<size_t> rem_dim(const py::array &a, size_t dim)
   {
   planck_assert(a.ndim()>0,"too few array dimensions");
-  planck_assert(a.shape(a.ndim()-1)==dim,"incorrect last array dimension");
+  planck_assert(size_t(a.shape(a.ndim()-1))==dim,
+    "incorrect last array dimension");
   vector<size_t> res(a.ndim()-1);
-  for (size_t i=0; i<a.ndim()-1; ++i) res[i]=a.shape(i);
+  for (size_t i=0; i<size_t(a.ndim())-1; ++i) res[i]=a.shape(i);
   return res;
   }
 vector<size_t> copy_dim(const py::array &a)
   {
   vector<size_t> res(a.ndim());
-  for (size_t i=0; i<a.ndim(); ++i) res[i]=a.shape(i);
+  for (size_t i=0; i<size_t(a.ndim()); ++i) res[i]=a.shape(i);
   return res;
   }
 
@@ -422,7 +424,7 @@ template<typename T> class py_sharpjob
     a_d_c alm2map (const a_c_c &alm) const
       {
       planck_assert(npix_>0,"no map geometry specified");
-      planck_assert (alm.size()==size_t(n_alm()),
+      planck_assert (alm.size()==n_alm(),
         "incorrect size of a_lm array");
       a_d_c map(npix_);
       auto mr=map.mutable_unchecked<1>();
@@ -433,7 +435,7 @@ template<typename T> class py_sharpjob
     a_c_c alm2map_adjoint (const a_d_c &map) const
       {
       planck_assert(npix_>0,"no map geometry specified");
-      planck_assert (map.size()==size_t(npix_),"incorrect size of map array");
+      planck_assert (map.size()==npix_,"incorrect size of map array");
       a_c_c alm(n_alm());
       auto mr=map.unchecked<1>();
       auto ar=alm.mutable_unchecked<1>();
@@ -443,7 +445,7 @@ template<typename T> class py_sharpjob
     a_c_c map2alm (const a_d_c &map) const
       {
       planck_assert(npix_>0,"no map geometry specified");
-      planck_assert (map.size()==size_t(npix_),"incorrect size of map array");
+      planck_assert (map.size()==npix_,"incorrect size of map array");
       a_c_c alm(n_alm());
       auto mr=map.unchecked<1>();
       auto ar=alm.mutable_unchecked<1>();
@@ -454,7 +456,7 @@ template<typename T> class py_sharpjob
       {
       planck_assert(npix_>0,"no map geometry specified");
       auto ar=alm.unchecked<2>();
-      planck_assert((ar.shape(0)==2)&&(ar.shape(1)==size_t(n_alm())),
+      planck_assert((ar.shape(0)==2)&&(ar.shape(1)==n_alm()),
         "incorrect size of a_lm array");
       a_d_c map(vector<size_t>{2,size_t(npix_)});
       auto mr=map.mutable_unchecked<2>();
@@ -465,7 +467,7 @@ template<typename T> class py_sharpjob
       {
       planck_assert(npix_>0,"no map geometry specified");
       auto mr=map.unchecked<2>();
-      planck_assert ((mr.shape(0)==2)&&(mr.shape(1)==size_t(npix_)),
+      planck_assert ((mr.shape(0)==2)&&(mr.shape(1)==npix_),
         "incorrect size of map array");
       a_c_c alm(vector<size_t>{2,size_t(n_alm())});
       auto ar=alm.mutable_unchecked<2>();
@@ -480,7 +482,7 @@ a_d_c GL_weights(int64_t nlat, int64_t nlon)
   auto rr=res.mutable_unchecked<1>();
   vector<double> dummy_roots(nlat);
   sharp_legendre_roots(nlat, dummy_roots.data(), &rr[0]);
-  for (size_t i=0; i<rr.shape(0); ++i)
+  for (size_t i=0; i<size_t(rr.shape(0)); ++i)
     rr[i]*=twopi/nlon;
   return res;
   }
@@ -491,7 +493,7 @@ a_d_c GL_thetas(int64_t nlat)
   auto rr=res.mutable_unchecked<1>();
   vector<double> dummy_weights(nlat);
   sharp_legendre_roots(nlat, &rr[0], dummy_weights.data());
-  for (size_t i=0; i<rr.shape(0); ++i)
+  for (size_t i=0; i<size_t(rr.shape(0)); ++i)
     rr[i]=acos(-rr[i]);
   return res;
   }
@@ -499,7 +501,7 @@ a_d_c GL_thetas(int64_t nlat)
 a_d_c local_alm2map(const a_c_c &alm, int64_t lmax, int64_t mmax, int64_t nside)
   {
   auto ar=alm.unchecked<1>();
-  planck_assert(ar.size()==Alm<xcomplex<double>>::Num_Alms(lmax,mmax),
+  planck_assert(size_t(ar.size())==Alm<xcomplex<double>>::Num_Alms(lmax,mmax),
     "a_lm size mismatch");
   arr<xcomplex<double> > my_alm
     (reinterpret_cast<xcomplex<double> *>
