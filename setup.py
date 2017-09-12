@@ -9,8 +9,6 @@ import distutils.sysconfig
 import itertools
 from glob import iglob
 
-__version__ = '0.0.1'
-
 def _get_sharp_libname():
     builder = setuptools.command.build_ext.build_ext(Distribution())
     full_name = builder.get_ext_filename('libsharp')
