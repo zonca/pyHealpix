@@ -71,6 +71,7 @@ def _remove_strict_prototype_option_from_distutils_config():
 _remove_strict_prototype_option_from_distutils_config()
 
 extra_compile_args = []
+extra_c_compile_args = []
 extra_cc_compile_args = []
 include_dirs = ['c_utils/', 'libfftpack/', 'libsharp/', 'cxxsupport',
                 'Healpix_cxx', _deferred_pybind11_include(),
@@ -96,9 +97,11 @@ if sys.platform == 'darwin':
 else:
     extra_compile_args+=['-fopenmp', '-march=native']
     python_module_link_args+=['-fopenmp', '-march=native']
+    extra_c_compile_args.append('--std=c99')
     extra_cc_compile_args.append('--std=c++14')
     python_module_link_args.append("-Wl,-rpath,$ORIGIN")
 
+extra_c_compile_args = extra_compile_args + extra_c_compile_args
 extra_cc_compile_args = extra_compile_args + extra_cc_compile_args
 
 
@@ -114,7 +117,7 @@ def get_extension_modules():
     sharp_library = Extension('libsharp',
                               sources=sharp_sources,
                               include_dirs=include_dirs,
-                              extra_compile_args=extra_compile_args,
+                              extra_compile_args=extra_c_compile_args,
                               extra_link_args=base_library_link_args,
                               libraries=[],
                               library_dirs=library_dirs)
